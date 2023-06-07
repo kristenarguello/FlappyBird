@@ -1,2 +1,8 @@
 /.DS_Store
 /.vscode
+
+*.hex
+*.elf
+*.lst
+*.sec
+*.o
