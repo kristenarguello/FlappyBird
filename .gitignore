@@ -6,3 +6,5 @@
 *.lst
 *.sec
 *.o
+
+*_backup.simu
