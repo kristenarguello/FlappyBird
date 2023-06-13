@@ -21,12 +21,12 @@
 #include "nokia5110.h"
 
 uint8_t cont1 = 0, cont2 = 0, cronometro = 0, creditos = 0, piscapisca = 0, contpisca = 0;
-uint8_t gravidade = 0, cont = 0, taSubindo = 0, pula3vezes = 0, gameover = 0;
+uint8_t gravidade = 0, cont = 0, taSubindo = 0, pula3vezes = 0, gameover = 0, canoAleatorio = 5;
 
 uint8_t cano = 0, posicaoCano = 80;
 
 ISR(TIMER2_OVF_vect) {
-    
+
     //passarinho pra cima e pra baixo
     if (taSubindo == 0) {
         if (cont == 10) {
@@ -106,16 +106,61 @@ int main(void) {
 
         sprintf(dcano1, "|");
         nokia_lcd_set_cursor(posicaoCano,0);
-        nokia_lcd_write_string(dcano1, 1);
-        nokia_lcd_set_cursor(posicaoCano,7);
-        nokia_lcd_write_string(dcano1, 1);
+        nokia_lcd_write_string(dcano1, 1);  
 
-        nokia_lcd_set_cursor(posicaoCano,27);
-        nokia_lcd_write_string(dcano1, 1);
-        nokia_lcd_set_cursor(posicaoCano,34);
-        nokia_lcd_write_string(dcano1, 1);
+        if (canoAleatorio == 1) {
+            //opcao 1
+            nokia_lcd_set_cursor(posicaoCano,18);
+            nokia_lcd_write_string(dcano1, 1);
+            nokia_lcd_set_cursor(posicaoCano,22);
+            nokia_lcd_write_string(dcano1, 1);
+            nokia_lcd_set_cursor(posicaoCano,29);
+            nokia_lcd_write_string(dcano1, 1);
+            nokia_lcd_set_cursor(posicaoCano,34);
+            nokia_lcd_write_string(dcano1, 1);
+
+        } else if (canoAleatorio == 2) {
+            nokia_lcd_set_cursor(posicaoCano,7);
+            nokia_lcd_write_string(dcano1, 1);
+            nokia_lcd_set_cursor(posicaoCano,14);
+            nokia_lcd_write_string(dcano1, 1);
+            nokia_lcd_set_cursor(posicaoCano,17);
+            nokia_lcd_write_string(dcano1, 1);
+
+        } else if (canoAleatorio == 3) {
+            nokia_lcd_set_cursor(posicaoCano,7);
+            nokia_lcd_write_string(dcano1, 1);
+            nokia_lcd_set_cursor(posicaoCano,8);
+            nokia_lcd_write_string(dcano1, 1);
+            nokia_lcd_set_cursor(posicaoCano,26);
+            nokia_lcd_write_string(dcano1, 1);
+            nokia_lcd_set_cursor(posicaoCano,33);
+            nokia_lcd_write_string(dcano1, 1);
+
+        } else if (canoAleatorio == 4) {
+            nokia_lcd_set_cursor(posicaoCano,4);
+            nokia_lcd_write_string(dcano1, 1);
+            nokia_lcd_set_cursor(posicaoCano,22);
+            nokia_lcd_write_string(dcano1, 1);
+            nokia_lcd_set_cursor(posicaoCano,29);
+            nokia_lcd_write_string(dcano1, 1);
+            nokia_lcd_set_cursor(posicaoCano,33);
+            nokia_lcd_write_string(dcano1, 1);
+        } else {
+            nokia_lcd_set_cursor(posicaoCano,7);
+            nokia_lcd_write_string(dcano1, 1);
+            nokia_lcd_set_cursor(posicaoCano,13);
+            nokia_lcd_write_string(dcano1, 1);
+            nokia_lcd_set_cursor(posicaoCano,30);
+            nokia_lcd_write_string(dcano1, 1);
+            nokia_lcd_set_cursor(posicaoCano,37);
+            nokia_lcd_write_string(dcano1, 1);
+
+        }
         nokia_lcd_set_cursor(posicaoCano,40);
         nokia_lcd_write_string(dcano1, 1);
+
+        
         nokia_lcd_render();
 
         if (gameover == 1) {
