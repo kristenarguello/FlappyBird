@@ -25,52 +25,30 @@ uint8_t gravidade = 0, cont = 0, taSubindo = 0, pula3vezes = 0, gameover = 0;
 
 uint8_t cano = 0, posicaoCano = 80;
 
-ISR(TIMER2_OVF_vect) { 
-    // if (cronometro) { 
-    //     cont2++;
-    //     if (cont2 == 61) {
-    //         cont2 = 0;
-    //         cont1--;
-    //         if (cont1 == 0) {
-    //             cronometro = 0;
-    //             PORTC ^= (1 << PC4);
-    //             piscapisca = 1;
-    //             creditos = 0;
-    //         }
-    //     }  
-    // }
-    // if (piscapisca) {
-    //     if (contpisca == 15) {
-    //         PORTC ^= (1 << PC5);
-    //         contpisca = 0;
-    //     }
-    //     contpisca++;
-    // }
-
+ISR(TIMER2_OVF_vect) {
+    
     //passarinho pra cima e pra baixo
     if (taSubindo == 0) {
         if (cont == 10) {
             gravidade++;
             if (gravidade == 40) {
                 gameover = 1;
-                PORTC |= (1 << PC5);
                 return;
             }
             cont = 0;
         }
         cont++;
     } else {
-        if (cont == 10 && pula3vezes < 5) {
+        if (cont == 10 && pula3vezes < 4) {
             gravidade--;
             if (gravidade == 0) {
                 gameover = 1;
-                PORTC |= (1 << PC5);
                 return;
             }
 
             pula3vezes++;
             cont = 0;
-        } else if (cont == 10 && pula3vezes == 5) {
+        } else if (cont == 10 && pula3vezes == 4) {
             taSubindo = 0;
             pula3vezes = 0;
             cont = 0;
@@ -82,6 +60,8 @@ ISR(TIMER2_OVF_vect) {
     //canos na horizontal
     if (cano == 10) {
         posicaoCano--;
+        if (posicaoCano == 0)
+            posicaoCano = 80;
         cano = 0;
     }
     cano++;
@@ -94,11 +74,7 @@ int main(void) {
     TCCR2B = (1 << CS22) | (1 << CS21) | (1 << CS20);
     TIMSK2 = (1 << TOIE2);
 
-    DDRC |= (1 << PC5) | (1 << PC4) | (1 << PC3);
-
-    DDRC &= ~(1 << PC6);
-    DDRD &= ~(1 << PD4) | ~(1 << PD7);
-    DDRB &= ~(1 << PB7);
+    DDRD &= ~(1 << PD7);//botao de pular
     sei();
 
     PORTC |= (1 << PC3);
@@ -107,92 +83,39 @@ int main(void) {
    
     char msg[30];
     char cred[30];
+    char dcano1[30];
     while (1) {
         if (PIND & (1 << PD7)) {
-
-            // PORTC &= ~(1 << PC5);
-            // piscapisca = 0; 
-            // if (creditos < 150) {
-            //     if (creditos + 25 > 150)
-            //         creditos = 150;
-            //     else 
-            //         creditos += 25;
-            // }
-            
-            // gravidade--;
             taSubindo = 1;
             cont = 0;
+            gravidade--;
 
             while (PIND & (1 << PD7))
                 _delay_ms(1); // debounce
-
         }
 
-
-        
-        // if (PINB & (1 << PB7)) {
-        //     PORTC &= ~(1 << PC5);
-        //     piscapisca = 0; 
-        //     if (creditos < 150) {
-        //         if (creditos + 50 > 150) 
-        //             creditos = 150;
-        //         else 
-        //             creditos += 50;
-        //     }
-        //     while (PINB & (1 << PB7))
-        //         _delay_ms(1); // debounce
-        // }
-
-        // if (PIND & (1 << PD4)) {
-        //     piscapisca = 0; 
-        //     PORTC &= ~(1 << PC5);
-        //     if (creditos < 150) {
-        //         if (creditos + 100 > 150) 
-        //             creditos = 150;
-        //         else 
-        //             creditos += 100;
-        //     }
-        //     while (PIND & (1 << PD4))
-        //         _delay_ms(1); // debounce
-        // }
-
-        // if (PINC & (1 << PC6)) {
-        //     if (creditos == 150) {
-        //         cronometro = 1;
-        //         cont1 = 10;
-        //         PORTC |= (1 << PC4);
-        //         PORTC &= ~(1 << PC3);
-        //     } 
-        //     while (PINC & (1 << PC6))
-        //         _delay_ms(1); // debounce
-        // }
-
-        // if (creditos > 0) 
-        //     PORTC |= (1 << PC3);
-        // if (creditos == 150)
-        //     PORTC &= ~(1 << PC3);
-
         nokia_lcd_clear();
-        // uint8_t inteiro = creditos/100, decimal = creditos%100;
-
-        // if (piscapisca) {
-        //     nokia_lcd_set_cursor(5, 40);
-        //     nokia_lcd_write_string("Sem creditos!", 1);
-        // }
             
-        // sprintf(msg, "Tempo: %ds", cont1);
-        // sprintf(cred, "Creditos:$%d,%d", inteiro, decimal);
         sprintf(cred, ".");
-        nokia_lcd_set_cursor(0, gravidade);
-        // nokia_lcd_write_string(msg, 1);
+        nokia_lcd_set_cursor(10, gravidade);
         nokia_lcd_write_string(cred, 1);
         nokia_lcd_set_cursor(0, 12);
         sprintf(msg, "%d", gravidade);
         nokia_lcd_write_string(msg, 1);
+
+
+        sprintf(dcano1, "|");
         nokia_lcd_set_cursor(posicaoCano,0);
-        nokia_lcd_write_string("!", 1);
+        nokia_lcd_write_string(dcano1, 1);
+        nokia_lcd_set_cursor(posicaoCano,7);
+        nokia_lcd_write_string(dcano1, 1);
 
-
+        nokia_lcd_set_cursor(posicaoCano,27);
+        nokia_lcd_write_string(dcano1, 1);
+        nokia_lcd_set_cursor(posicaoCano,34);
+        nokia_lcd_write_string(dcano1, 1);
+        nokia_lcd_set_cursor(posicaoCano,40);
+        nokia_lcd_write_string(dcano1, 1);
         nokia_lcd_render();
 
         if (gameover == 1) {
