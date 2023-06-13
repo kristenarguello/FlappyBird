@@ -14,6 +14,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
@@ -21,9 +22,9 @@
 #include "nokia5110.h"
 
 uint8_t cont1 = 0, cont2 = 0, cronometro = 0, creditos = 0, piscapisca = 0, contpisca = 0;
-uint8_t gravidade = 0, cont = 0, taSubindo = 0, pula3vezes = 0, gameover = 0, canoAleatorio = 5;
+uint8_t gravidade = 0, cont = 0, taSubindo = 0, pula3vezes = 0, gameover = 0, cano1Aleatorio = 0, cano2Aleatorio = 0;
 
-uint8_t cano = 0, posicaoCano = 80;
+uint8_t cano = 0, posicaoCano = 80, posicaoCano2 = 80, cano1naMetade = 0;
 
 ISR(TIMER2_OVF_vect) {
 
@@ -59,13 +60,84 @@ ISR(TIMER2_OVF_vect) {
 
     //canos na horizontal
     if (cano == 10) {
+        if (posicaoCano == 40) {
+            cano1naMetade = 1;
+        }
+
         posicaoCano--;
-        if (posicaoCano == 0)
+        if (posicaoCano == 0) {
             posicaoCano = 80;
+            cano1Aleatorio = rand() % (5 - 0 + 1) + 0;;
+        }
+
+        if (cano1naMetade == 1) {
+            posicaoCano2--;
+            if (posicaoCano2 == 0) {
+                posicaoCano2 = 80;
+                cano2Aleatorio = rand() % (5 - 0 + 1) + 0;
+            }
+        }
+
         cano = 0;
     }
     cano++;
 
+}
+
+int desenhaCano(uint8_t qualCano, uint8_t posicao) {
+    nokia_lcd_set_cursor(posicao,0);
+    nokia_lcd_write_string("|", 1);  
+
+        if (qualCano == 1) {
+            //opcao 1
+            nokia_lcd_set_cursor(posicao,18);
+            nokia_lcd_write_string("|", 1);
+            nokia_lcd_set_cursor(posicao,22);
+            nokia_lcd_write_string("|", 1);
+            nokia_lcd_set_cursor(posicao,29);
+            nokia_lcd_write_string("|", 1);
+            nokia_lcd_set_cursor(posicao,34);
+            nokia_lcd_write_string("|", 1);
+
+        } else if (qualCano == 2) {
+            nokia_lcd_set_cursor(posicao,7);
+            nokia_lcd_write_string("|", 1);
+            nokia_lcd_set_cursor(posicao,14);
+            nokia_lcd_write_string("|", 1);
+            nokia_lcd_set_cursor(posicao,17);
+            nokia_lcd_write_string("|", 1);
+
+        } else if (qualCano == 3) {
+            nokia_lcd_set_cursor(posicao,7);
+            nokia_lcd_write_string("|", 1);
+            nokia_lcd_set_cursor(posicao,8);
+            nokia_lcd_write_string("|", 1);
+            nokia_lcd_set_cursor(posicao,26);
+            nokia_lcd_write_string("|", 1);
+            nokia_lcd_set_cursor(posicao,33);
+            nokia_lcd_write_string("|", 1);
+
+        } else if (qualCano == 4) {
+            nokia_lcd_set_cursor(posicao,4);
+            nokia_lcd_write_string("|", 1);
+            nokia_lcd_set_cursor(posicao,22);
+            nokia_lcd_write_string("|", 1);
+            nokia_lcd_set_cursor(posicao,29);
+            nokia_lcd_write_string("|", 1);
+            nokia_lcd_set_cursor(posicao,33);
+            nokia_lcd_write_string("|", 1);
+        } else {
+            nokia_lcd_set_cursor(posicao,7);
+            nokia_lcd_write_string("|", 1);
+            nokia_lcd_set_cursor(posicao,13);
+            nokia_lcd_write_string("|", 1);
+            nokia_lcd_set_cursor(posicao,20);
+            nokia_lcd_write_string("|", 1);
+        }
+        nokia_lcd_set_cursor(posicao,40);
+        nokia_lcd_write_string("|", 1);
+
+        return 0;
 }
 
 int main(void) {
@@ -83,7 +155,7 @@ int main(void) {
    
     char msg[30];
     char cred[30];
-    char dcano1[30];
+
     while (1) {
         if (PIND & (1 << PD7)) {
             taSubindo = 1;
@@ -103,63 +175,9 @@ int main(void) {
         sprintf(msg, "%d", gravidade);
         nokia_lcd_write_string(msg, 1);
 
-
-        sprintf(dcano1, "|");
-        nokia_lcd_set_cursor(posicaoCano,0);
-        nokia_lcd_write_string(dcano1, 1);  
-
-        if (canoAleatorio == 1) {
-            //opcao 1
-            nokia_lcd_set_cursor(posicaoCano,18);
-            nokia_lcd_write_string(dcano1, 1);
-            nokia_lcd_set_cursor(posicaoCano,22);
-            nokia_lcd_write_string(dcano1, 1);
-            nokia_lcd_set_cursor(posicaoCano,29);
-            nokia_lcd_write_string(dcano1, 1);
-            nokia_lcd_set_cursor(posicaoCano,34);
-            nokia_lcd_write_string(dcano1, 1);
-
-        } else if (canoAleatorio == 2) {
-            nokia_lcd_set_cursor(posicaoCano,7);
-            nokia_lcd_write_string(dcano1, 1);
-            nokia_lcd_set_cursor(posicaoCano,14);
-            nokia_lcd_write_string(dcano1, 1);
-            nokia_lcd_set_cursor(posicaoCano,17);
-            nokia_lcd_write_string(dcano1, 1);
-
-        } else if (canoAleatorio == 3) {
-            nokia_lcd_set_cursor(posicaoCano,7);
-            nokia_lcd_write_string(dcano1, 1);
-            nokia_lcd_set_cursor(posicaoCano,8);
-            nokia_lcd_write_string(dcano1, 1);
-            nokia_lcd_set_cursor(posicaoCano,26);
-            nokia_lcd_write_string(dcano1, 1);
-            nokia_lcd_set_cursor(posicaoCano,33);
-            nokia_lcd_write_string(dcano1, 1);
-
-        } else if (canoAleatorio == 4) {
-            nokia_lcd_set_cursor(posicaoCano,4);
-            nokia_lcd_write_string(dcano1, 1);
-            nokia_lcd_set_cursor(posicaoCano,22);
-            nokia_lcd_write_string(dcano1, 1);
-            nokia_lcd_set_cursor(posicaoCano,29);
-            nokia_lcd_write_string(dcano1, 1);
-            nokia_lcd_set_cursor(posicaoCano,33);
-            nokia_lcd_write_string(dcano1, 1);
-        } else {
-            nokia_lcd_set_cursor(posicaoCano,7);
-            nokia_lcd_write_string(dcano1, 1);
-            nokia_lcd_set_cursor(posicaoCano,13);
-            nokia_lcd_write_string(dcano1, 1);
-            nokia_lcd_set_cursor(posicaoCano,30);
-            nokia_lcd_write_string(dcano1, 1);
-            nokia_lcd_set_cursor(posicaoCano,37);
-            nokia_lcd_write_string(dcano1, 1);
-
-        }
-        nokia_lcd_set_cursor(posicaoCano,40);
-        nokia_lcd_write_string(dcano1, 1);
-
+        desenhaCano(cano1Aleatorio, posicaoCano);
+        if (cano1naMetade == 1)
+            desenhaCano(cano2Aleatorio, posicaoCano2);
         
         nokia_lcd_render();
 
