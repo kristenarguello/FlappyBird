@@ -29,16 +29,16 @@ uint8_t linha[] = {
     0b00000000
 };
 
-uint8_t cont1 = 0, cont2 = 0, cronometro = 0, creditos = 0, piscapisca = 0, contpisca = 0;
-uint8_t gravidade = 0, cont = 0, taSubindo = 0, pula3vezes = 0, gameover = 0, cano1Aleatorio = 1, cano2Aleatorio = 1, ponto = 0;
-
-uint8_t cano = 0, posicaoCano = 40, posicaoCano2 = 80, cano1naMetade = 0, jaPasso = 0, velocidade = 10, dificuldade = 0;//limpar essas variaevis aqui em cima
+uint8_t gravidade = 15, cont = 0, taSubindo = 0, pula3vezes = 0, gameover = 0, cano1Aleatorio = 1, cano2Aleatorio = 1, ponto = 0;
+uint8_t cano = 0, posicaoCano = 40, posicaoCano2 = 80, jaPasso = 0, velocidade = 10, dificuldade = 0, start = 0;//limpar essas variaevis aqui em cima
 
 ISR(TIMER2_OVF_vect)
 {
+    if (start == 0)
+        return;
+
     // passarinho pra cima e pra baixo
-    if (taSubindo == 0)
-    {
+    if (taSubindo == 0) {
         if (cont == 10)//comparacao de tempo pode ser variada para fazer a dificuldade
         {
             gravidade++;
@@ -50,11 +50,8 @@ ISR(TIMER2_OVF_vect)
             cont = 0;
         }
         cont++;
-    }
-    else
-    {
-        if (cont == 10 && pula3vezes < 4)
-        {
+    } else {
+        if (cont == 10 && pula3vezes < 4) {
             gravidade--;
             if (gravidade == 0)
             {
@@ -65,8 +62,7 @@ ISR(TIMER2_OVF_vect)
             pula3vezes++;
             cont = 0;
         }
-        else if (cont == 10 && pula3vezes == 4)
-        {
+        else if (cont == 10 && pula3vezes == 4) {
             taSubindo = 0;
             pula3vezes = 0;
             cont = 0;
@@ -75,28 +71,17 @@ ISR(TIMER2_OVF_vect)
     }
 
     // canos na horizontal
-    if (cano == 10)
-    {
-        if (posicaoCano == 40)
-        {
-            cano1naMetade = 1;
-        }
-
+    if (cano == 10) {
         posicaoCano--;
-        if (posicaoCano == 0)
-        {
+        if (posicaoCano == 0) {
             posicaoCano = 80;
             // cano1Aleatorio = rand() % (5 - 0 + 1) + 0;
         }
 
-        if (cano1naMetade == 1)
-        {
-            posicaoCano2--;
-            if (posicaoCano2 == 0)
-            {
-                posicaoCano2 = 80;
-                // cano2Aleatorio = rand() % (5 - 0 + 1) + 0;
-            }
+        posicaoCano2--;
+        if (posicaoCano2 == 0) {
+            posicaoCano2 = 80;
+            // cano2Aleatorio = rand() % (5 - 0 + 1) + 0;
         }
 
         cano = 0;
@@ -112,8 +97,7 @@ ISR(TIMER2_OVF_vect)
     dificuldade++;
 }
 
-int desenhaCano(uint8_t qualCano, uint8_t posicao)
-{
+int desenhaCano(uint8_t qualCano, uint8_t posicao) {
     nokia_lcd_set_cursor(posicao, 0);
     nokia_lcd_write_string("|", 1);
 
@@ -213,7 +197,7 @@ int main(void)
     TCCR2B = (1 << CS22) | (1 << CS21) | (1 << CS20);
     TIMSK2 = (1 << TOIE2);
 
-    DDRD &= ~(1 << PD7); // botao de pular
+    DDRD &= ~(1 << PD7) | ~(1 << PD0); // botao de pular
     sei();
 
     DDRC |= (1 << PC3);
@@ -224,56 +208,100 @@ int main(void)
     // cano2Aleatorio = rand() % (5 - 0 + 1) + 0;
     
     
-    
+    while (1) {
+            nokia_lcd_clear();
+            nokia_lcd_set_cursor(0, 0);
+            nokia_lcd_write_string("Flappy Bird", 1);
+            nokia_lcd_set_cursor(0, 12);
+            nokia_lcd_write_string("Presst S to start", 1);
+            nokia_lcd_render();
+
+
+        if (PIND & (1 << PD0)) {
+            start = 1;
+            break;
+
+            while (PIND & (1 << PD0))
+                _delay_ms(1); // debounce
+        }
+    }
 
 
 
     char msg[30];
     // char cred[30];
+    while (start == 1) {
+        while (gameover == 0) {
+            if (PIND & (1 << PD7))
+            {
+                taSubindo = 1;
+                cont = 0;
+                gravidade--;
 
-    while (gameover == 0)
-    {
-        if (PIND & (1 << PD7))
-        {
-            taSubindo = 1;
-            cont = 0;
-            gravidade--;
+                while (PIND & (1 << PD7))
+                    _delay_ms(1); // debounce
+            }
 
-            while (PIND & (1 << PD7))
-                _delay_ms(1); // debounce
+            aumentaPonto(posicaoCano, cano1Aleatorio);
+            aumentaPonto(posicaoCano2, cano2Aleatorio);
+            
+            nokia_lcd_clear();
+
+            for (int i=0; i<80; i++) {
+                nokia_lcd_set_cursor(i, 0);
+                // nokia_lcd_write_string(".", 1);
+                nokia_lcd_custom(1, linha);
+                nokia_lcd_set_cursor(i, 40);
+                nokia_lcd_custom(1, linha);//como escrever na tela customizados???
+            }
+
+            nokia_lcd_set_cursor(10, gravidade);
+            nokia_lcd_write_string(".", 1);
+            nokia_lcd_set_cursor(0, 12);
+            sprintf(msg, "%d", velocidade);
+            nokia_lcd_write_string(msg, 1);
+
+            desenhaCano(cano1Aleatorio, posicaoCano);
+            desenhaCano(cano2Aleatorio, posicaoCano2);//adicionar mais canos?
+
+            nokia_lcd_render();
         }
-
-        aumentaPonto(posicaoCano, cano1Aleatorio);
-        aumentaPonto(posicaoCano2, cano2Aleatorio);
         
-        nokia_lcd_clear();
+        while (gameover == 1) {
+            start = 0;
+            nokia_lcd_clear();
+            nokia_lcd_set_cursor(0, 0);
+            nokia_lcd_write_string("  GAME OVER", 1);
+            nokia_lcd_set_cursor(0, 12);
+            sprintf(msg, "  Score: %d", ponto);
+            nokia_lcd_write_string(msg, 1);
+            nokia_lcd_set_cursor(0, 24);
+            nokia_lcd_write_string("  Press s to     restart", 1);
+            nokia_lcd_render();
 
-        for (int i=0; i<80; i++) {
-            nokia_lcd_set_cursor(i, 0);
-            // nokia_lcd_write_string(".", 1);
-            nokia_lcd_custom(1, linha);
-            nokia_lcd_set_cursor(i, 40);
-            nokia_lcd_custom(1, linha);//como escrever na tela customizados???
+            if (PIND & (1 << PD0)) {
+                gravidade = 0; 
+                cont = 0;
+                taSubindo = 0; 
+                pula3vezes = 0;
+                gameover = 0; 
+                cano1Aleatorio = 1;
+                cano2Aleatorio = 1; 
+                ponto = 0;
+                cano = 0;
+                posicaoCano = 40;
+                posicaoCano2 = 80;
+                jaPasso = 0;
+                velocidade = 10; 
+                dificuldade = 0;
+                start = 1;
+
+                while (PIND & (1 << PD0))
+                    _delay_ms(1); // debounce
+            }
         }
-
-        // sprintf(cred, ".");
-        nokia_lcd_set_cursor(10, gravidade);
-        nokia_lcd_write_string(".", 1);
-        nokia_lcd_set_cursor(0, 12);
-        sprintf(msg, "%d", velocidade);
-        nokia_lcd_write_string(msg, 1);
-
-        desenhaCano(cano1Aleatorio, posicaoCano);
-        desenhaCano(cano2Aleatorio, posicaoCano2);//adicionar mais canos?
-
-        nokia_lcd_render();
+        
     }
 
-    nokia_lcd_clear();
-    nokia_lcd_set_cursor(0, 0);
-    nokia_lcd_write_string("GAME OVER", 1);
-    nokia_lcd_set_cursor(0, 12);
-    sprintf(msg, "%d", ponto);
-    nokia_lcd_write_string(msg, 1);
-    nokia_lcd_render();
+   
 }
