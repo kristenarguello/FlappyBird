@@ -24,29 +24,27 @@
 uint8_t gravidade = 15,
         tempo = 0,
         taSubindo = 0,
-        pula3vezes = 0,
+        pula5vezes = 0,
         gameover = 0,
         pontos = 0,
 
-        cano1Aleatorio = 5,
-        cano2Aleatorio = 5,
-        posicaoCano = 40,
+        cano1Aleatorio = 6,
+        cano2Aleatorio = 6,
+        posicaoCano1 = 40,
         posicaoCano2 = 80,
 
         movimentoCano = 0,
         jaPasso = 0,
         jaAumentou = 0,
-        velocidade = 10,
-        dificuldade = 0,
+        velocidade = 9,
         start = 0;
 
-uint8_t glyph[] =
-    {
-        0b00100000,
-        0b00010010,
-        0b00010000,
-        0b00010010,
-        0b00100000};
+uint8_t glyph[] = {
+    0b00100000,
+    0b00010010,
+    0b00010000,
+    0b00010010,
+    0b00100000};
 
 ISR(TIMER2_OVF_vect)
 {
@@ -70,7 +68,7 @@ ISR(TIMER2_OVF_vect)
     }
     else
     {
-        if (tempo == 10 && pula3vezes < 4)
+        if (tempo == velocidade && pula5vezes < 4)
         {
             gravidade--;
             if (gravidade < 1)
@@ -79,13 +77,13 @@ ISR(TIMER2_OVF_vect)
                 return;
             }
 
-            pula3vezes++;
+            pula5vezes++;
             tempo = 0;
         }
-        else if (tempo == 10 && pula3vezes == 4)
+        else if (tempo == velocidade && pula5vezes == 4)
         {
             taSubindo = 0;
-            pula3vezes = 0;
+            pula5vezes = 0;
             tempo = 0;
         }
         tempo++;
@@ -94,34 +92,35 @@ ISR(TIMER2_OVF_vect)
     // canos na horizontal
     if (movimentoCano == velocidade)
     {
-        posicaoCano--;
-        if (posicaoCano == 0)
+        posicaoCano1--;
+        if (posicaoCano1 == 0)
         {
-            posicaoCano = 80;
-            // cano1Aleatorio = rand() % (5 - 0 + 1) + 0;
+            posicaoCano1 = 80;
+            cano1Aleatorio = rand() % (7 - 1 + 1) + 1;
         }
 
         posicaoCano2--;
         if (posicaoCano2 == 0)
         {
             posicaoCano2 = 80;
-            // cano2Aleatorio = rand() % (5 - 0 + 1) + 0;
+            cano2Aleatorio = rand() % (7 - 1 + 1) + 1;
         }
         movimentoCano = 0;
     }
     movimentoCano++;
 
-    if (pontos % 3 == 0 && pontos != 0 && jaAumentou == 0)
+    if (pontos % 2 == 0 && pontos != 0 && jaAumentou == 0)
     {
-        if (velocidade > 5)
+        if (velocidade > 5) {
             velocidade--;
-
+            tempo = 0;
+            movimentoCano = 0;
+        }
         jaAumentou = 1;
-
-        dificuldade = 0;
     }
-    if (pontos % 4 == 0 && pontos != 0)
+    if (pontos % 3 == 0 && pontos != 0)
         jaAumentou = 0;
+
 }
 
 int desenhaCano(uint8_t qualCano, uint8_t posicao)
@@ -178,6 +177,8 @@ int desenhaCano(uint8_t qualCano, uint8_t posicao)
     {
         nokia_lcd_set_cursor(posicao, 7);
         nokia_lcd_write_string("|", 1);
+        nokia_lcd_set_cursor(posicao, 26);
+        nokia_lcd_write_string("|", 1);
         nokia_lcd_set_cursor(posicao, 32);
         nokia_lcd_write_string("|", 1);
         nokia_lcd_set_cursor(posicao, 39);
@@ -218,30 +219,38 @@ int aumentaPonto(uint8_t posicao, uint8_t cano)
     {
         switch (cano)
         {
-        case 1:
-            max = 10;
-            min = 5;
-            break;
-        case 2:
-            max = 28;
-            min = 19;
-            break;
-        case 3:
-            max = 18;
-            min = 10;
-            break;
-        case 4:
-            max = 14;
-            min = 6;
-            break;
-        case 5:
-            max = 29;
-            min = 23;
-            break;
-        default:
-            max = 80;
-            min = 0;
-            break;
+            case 1:
+                max = 10;
+                min = 5;
+                break;
+            case 2:
+                max = 28;
+                min = 20;
+                break;
+            case 3:
+                max = 16;
+                min = 11;
+                break;
+            case 4:
+                max = 13;
+                min = 7;
+                break;
+            case 5:
+                max = 16;
+                min = 9;
+                break;
+            case 6:
+                max = 13;
+                min = 6;
+                break;
+            case 7:
+                max = 29;
+                min = 24;
+                break;
+            default:
+                max = 80;
+                min = 0;
+                break;
         }
 
         if (gravidade < min || gravidade > max)
@@ -273,14 +282,14 @@ int main(void)
 
     nokia_lcd_init();
 
-    // cano1Aleatorio = rand() % (5 - 0 + 1) + 0;
-    // cano2Aleatorio = rand() % (5 - 0 + 1) + 0;
+    cano1Aleatorio = rand() % (7 - 0 + 1) + 0;
+    cano2Aleatorio = rand() % (7 - 0 + 1) + 0;
 
     while (1)
     {
         nokia_lcd_clear();
-        nokia_lcd_set_cursor(8, 15);
-        nokia_lcd_write_string("Flappy Bird", 1);
+        nokia_lcd_set_cursor(14, 15);
+        nokia_lcd_write_string("FlappyDot", 1);
         nokia_lcd_set_cursor(12, 25);
         nokia_lcd_write_string("S to start", 1);
         nokia_lcd_render();
@@ -297,7 +306,6 @@ int main(void)
 
     char msg[30];
     char limite[80];
-    // char cred[30];
     while (start == 1)
     {
         while (gameover == 0)
@@ -314,16 +322,12 @@ int main(void)
                     break;
                 }
 
-                while (PIND & (1 << PD7))
-                    _delay_ms(1); // debounce
+                // while (PIND & (1 << PD7)) {
+                //     if (!(posicaoCano1 == 10 || posicaoCano2 == 10)) 
+                //         _delay_ms(1); // debounce
+                // }
             }
 
-            gameover = aumentaPonto(posicaoCano, cano1Aleatorio);
-            if (gameover)
-                break;
-            gameover = aumentaPonto(posicaoCano2, cano2Aleatorio);
-            if (gameover)
-                break;
 
             nokia_lcd_clear();
             for (int i = 0; i < 14; i++)
@@ -340,11 +344,14 @@ int main(void)
             nokia_lcd_set_cursor(70, 6);
             sprintf(msg, "%d", pontos);
             nokia_lcd_write_string(msg, 1);
-            /*nokia_lcd_set_cursor(0, 0);
-            sprintf(msg, "%d", gravidade);
-            nokia_lcd_write_string(msg, 1);*/
+            gameover = aumentaPonto(posicaoCano1, cano1Aleatorio);
+            if (gameover)
+                break;
+            gameover = aumentaPonto(posicaoCano2, cano2Aleatorio);
+            if (gameover)
+                break;
 
-            desenhaCano(cano1Aleatorio, posicaoCano);
+            desenhaCano(cano1Aleatorio, posicaoCano1);
             desenhaCano(cano2Aleatorio, posicaoCano2);
             nokia_lcd_render();
         }
@@ -368,18 +375,17 @@ int main(void)
                 gravidade = 15;
                 tempo = 0;
                 taSubindo = 0;
-                pula3vezes = 0;
+                pula5vezes = 0;
                 gameover = 0;
                 pontos = 0;
                 movimentoCano = 0;
                 jaPasso = 0;
                 velocidade = 10;
-                dificuldade = 0;
                 start = 1;
 
-                // cano1Aleatorio = rand() % (5 - 0 + 1) + 0;
-                // cano2Aleatorio = rand() % (5 - 0 + 1) + 0;
-                posicaoCano = 40;
+                cano1Aleatorio = rand() % (7 - 1 + 1) + 1;
+                cano2Aleatorio = rand() % (7 - 1 + 1) + 1;
+                posicaoCano1 = 40;
                 posicaoCano2 = 80;
 
                 while (PIND & (1 << PD0))
