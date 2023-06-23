@@ -355,9 +355,9 @@ int main(void)
             nokia_lcd_set_cursor(70, 6);
             sprintf(msg, "%d", pontos);
             nokia_lcd_write_string(msg, 1);
-            nokia_lcd_set_cursor(0, 0);
-            sprintf(msg, "%d", gravidade);
-            nokia_lcd_write_string(msg, 1);
+            // nokia_lcd_set_cursor(0, 0);
+            // sprintf(msg, "%d", gravidade);
+            // nokia_lcd_write_string(msg, 1);
 
             gameover = aumentaPonto(posicaoCano1, cano1Aleatorio);
             if (gameover)
