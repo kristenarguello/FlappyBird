@@ -55,20 +55,20 @@ uint8_t glyph2[] = {
 
 ISR(TIMER2_OVF_vect)
 {
-    if (start == 0)
+    if (!start)
         return;
 
     // passarinho pra cima e pra baixo
-    if (taSubindo == 0)
+    if (!taSubindo)
     {
         if (tempo == velocidade)
         {
             gravidade++;
-            if (gravidade == 40)
+            if (gravidade == 40 || gravidade <= 0)
             {
                 gameover = 1;
                 return;
-            }
+            } 
             tempo = 0;
         }
         tempo++;
@@ -121,7 +121,8 @@ ISR(TIMER2_OVF_vect)
     }
     movimentoCano++;
 
-    if (pontos % 2 == 0 && pontos != 0 && jaAumentou == 0)
+    //aumento de dificuldade
+    if (pontos % 2 == 0 && pontos != 0 && jaAumentou)
     {
         if (velocidade > 5)
         {
@@ -142,7 +143,6 @@ int desenhaCano(uint8_t qualCano, uint8_t posicao)
 
     if (qualCano == 1)
     {
-        // opcao 1
         nokia_lcd_set_cursor(posicao, 18);
         nokia_lcd_write_string("|", 1);
         nokia_lcd_set_cursor(posicao, 22);
@@ -227,7 +227,7 @@ int desenhaCano(uint8_t qualCano, uint8_t posicao)
 int aumentaPonto(uint8_t posicao, uint8_t cano)
 {
     uint8_t max, min;
-    if (posicao == 10 && jaPasso == 0)
+    if (posicao == 10 && !jaPasso)
     {
         switch (cano)
         {
@@ -287,7 +287,7 @@ int main(void)
     cli();
     TCCR2A = 0x00;
     TCCR2B = (1 << CS22) | (1 << CS21) | (1 << CS20);
-    TIMSK2 = (1 << TOIE2);
+    TIMSK2 = (1 << TOIE2); //timer 2
 
     DDRD &= ~(1 << PD7) | ~(1 << PD0); // botao de pular e start
     sei();
@@ -319,9 +319,9 @@ int main(void)
 
     char msg[30];
     char limite[80];
-    while (start == 1)
+    while (start)
     {
-        while (gameover == 0)
+        while (!gameover)
         {
             if (PIND & (1 << PD7))
             {
@@ -338,13 +338,13 @@ int main(void)
                 // while (PIND & (1 << PD7)) {
                 //     if (!(posicaoCano1 == 10 || posicaoCano2 == 10))
                 //         _delay_ms(1); // debounce
-                // }
+                // } == tirado por causa de bugs
             }
 
             nokia_lcd_clear();
             for (int i = 0; i < 14; i++)
             {
-                limite[i] = '-';
+                limite[i] = '-'; //ceu e chao 
             }
             nokia_lcd_set_cursor(0, 0);
             nokia_lcd_write_string(limite, 1);
@@ -362,7 +362,7 @@ int main(void)
 
             gameover = aumentaPonto(posicaoCano1, cano1Aleatorio);
             if (gameover)
-                break;
+                break; //morreu = acaba o jogo
             gameover = aumentaPonto(posicaoCano2, cano2Aleatorio);
             if (gameover)
                 break;
@@ -372,9 +372,9 @@ int main(void)
             nokia_lcd_render();
         }
 
-        while (gameover == 1)
+        while (gameover) //tela de gameover
         {
-            start = 0;
+            start = 0; 
             nokia_lcd_clear();
             nokia_lcd_set_cursor(5, 1);
             nokia_lcd_custom(2, glyph);
@@ -386,7 +386,7 @@ int main(void)
             nokia_lcd_write_string("S to restart", 1);
             nokia_lcd_render();
 
-            if (PIND & (1 << PD0))
+            if (PIND & (1 << PD0)) //clicou no s, reinicia as variaceis
             {
                 gravidade = 15;
                 tempo = 0;
