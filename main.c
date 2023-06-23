@@ -68,7 +68,7 @@ ISR(TIMER2_OVF_vect)
             {
                 gameover = 1;
                 return;
-            } 
+            }
             tempo = 0;
         }
         tempo++;
@@ -77,13 +77,12 @@ ISR(TIMER2_OVF_vect)
     {
         if (tempo == velocidade && pula5vezes < 4)
         {
-            gravidade--;
             if (gravidade <= 0)
             {
                 gameover = 1;
                 return;
             }
-
+            gravidade--;
             pula5vezes++;
             tempo = 0;
         }
@@ -121,7 +120,7 @@ ISR(TIMER2_OVF_vect)
     }
     movimentoCano++;
 
-    //aumento de dificuldade
+    // aumento de dificuldade
     if (pontos % 2 == 0 && pontos != 0 && jaAumentou)
     {
         if (velocidade > 5)
@@ -287,7 +286,7 @@ int main(void)
     cli();
     TCCR2A = 0x00;
     TCCR2B = (1 << CS22) | (1 << CS21) | (1 << CS20);
-    TIMSK2 = (1 << TOIE2); //timer 2
+    TIMSK2 = (1 << TOIE2); // timer 2
 
     DDRD &= ~(1 << PD7) | ~(1 << PD0); // botao de pular e start
     sei();
@@ -344,7 +343,7 @@ int main(void)
             nokia_lcd_clear();
             for (int i = 0; i < 14; i++)
             {
-                limite[i] = '-'; //ceu e chao 
+                limite[i] = '-'; // ceu e chao
             }
             nokia_lcd_set_cursor(0, 0);
             nokia_lcd_write_string(limite, 1);
@@ -362,7 +361,7 @@ int main(void)
 
             gameover = aumentaPonto(posicaoCano1, cano1Aleatorio);
             if (gameover)
-                break; //morreu = acaba o jogo
+                break; // morreu = acaba o jogo
             gameover = aumentaPonto(posicaoCano2, cano2Aleatorio);
             if (gameover)
                 break;
@@ -372,9 +371,9 @@ int main(void)
             nokia_lcd_render();
         }
 
-        while (gameover) //tela de gameover
+        while (gameover) // tela de gameover
         {
-            start = 0; 
+            start = 0;
             nokia_lcd_clear();
             nokia_lcd_set_cursor(5, 1);
             nokia_lcd_custom(2, glyph);
@@ -386,7 +385,7 @@ int main(void)
             nokia_lcd_write_string("S to restart", 1);
             nokia_lcd_render();
 
-            if (PIND & (1 << PD0)) //clicou no s, reinicia as variaceis
+            if (PIND & (1 << PD0)) // clicou no s, reinicia as variaceis
             {
                 gravidade = 15;
                 tempo = 0;
