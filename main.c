@@ -46,6 +46,13 @@ uint8_t glyph[] = {
     0b00010010,
     0b00100000};
 
+uint8_t glyph2[] = {
+    0b00000000,
+    0b00111100,
+    0b00111100,
+    0b00111100,
+    0b00111100};
+
 ISR(TIMER2_OVF_vect)
 {
     if (start == 0)
@@ -71,7 +78,7 @@ ISR(TIMER2_OVF_vect)
         if (tempo == velocidade && pula5vezes < 4)
         {
             gravidade--;
-            if (gravidade < 1)
+            if (gravidade <= 0)
             {
                 gameover = 1;
                 return;
@@ -82,6 +89,11 @@ ISR(TIMER2_OVF_vect)
         }
         else if (tempo == velocidade && pula5vezes == 4)
         {
+            if (gravidade <= 0)
+            {
+                gameover = 1;
+                return;
+            }
             taSubindo = 0;
             pula5vezes = 0;
             tempo = 0;
@@ -111,7 +123,8 @@ ISR(TIMER2_OVF_vect)
 
     if (pontos % 2 == 0 && pontos != 0 && jaAumentou == 0)
     {
-        if (velocidade > 5) {
+        if (velocidade > 5)
+        {
             velocidade--;
             tempo = 0;
             movimentoCano = 0;
@@ -120,7 +133,6 @@ ISR(TIMER2_OVF_vect)
     }
     if (pontos % 3 == 0 && pontos != 0)
         jaAumentou = 0;
-
 }
 
 int desenhaCano(uint8_t qualCano, uint8_t posicao)
@@ -219,38 +231,38 @@ int aumentaPonto(uint8_t posicao, uint8_t cano)
     {
         switch (cano)
         {
-            case 1:
-                max = 10;
-                min = 5;
-                break;
-            case 2:
-                max = 28;
-                min = 20;
-                break;
-            case 3:
-                max = 16;
-                min = 11;
-                break;
-            case 4:
-                max = 13;
-                min = 7;
-                break;
-            case 5:
-                max = 16;
-                min = 9;
-                break;
-            case 6:
-                max = 13;
-                min = 6;
-                break;
-            case 7:
-                max = 29;
-                min = 24;
-                break;
-            default:
-                max = 80;
-                min = 0;
-                break;
+        case 1:
+            max = 10;
+            min = 5;
+            break;
+        case 2:
+            max = 28;
+            min = 20;
+            break;
+        case 3:
+            max = 16;
+            min = 11;
+            break;
+        case 4:
+            max = 13;
+            min = 7;
+            break;
+        case 5:
+            max = 16;
+            min = 9;
+            break;
+        case 6:
+            max = 13;
+            min = 6;
+            break;
+        case 7:
+            max = 29;
+            min = 24;
+            break;
+        default:
+            max = 80;
+            min = 0;
+            break;
         }
 
         if (gravidade < min || gravidade > max)
@@ -288,8 +300,9 @@ int main(void)
     while (1)
     {
         nokia_lcd_clear();
-        nokia_lcd_set_cursor(14, 15);
-        nokia_lcd_write_string("FlappyDot", 1);
+        nokia_lcd_set_cursor(10, 15);
+        nokia_lcd_custom(3, glyph2);
+        nokia_lcd_write_string("FlappyDot \003", 1);
         nokia_lcd_set_cursor(12, 25);
         nokia_lcd_write_string("S to start", 1);
         nokia_lcd_render();
@@ -316,18 +329,17 @@ int main(void)
                 tempo = 0;
                 gravidade--;
 
-                if (gravidade < 1)
+                if (gravidade <= 0)
                 {
                     gameover = 1;
                     break;
                 }
 
                 // while (PIND & (1 << PD7)) {
-                //     if (!(posicaoCano1 == 10 || posicaoCano2 == 10)) 
+                //     if (!(posicaoCano1 == 10 || posicaoCano2 == 10))
                 //         _delay_ms(1); // debounce
                 // }
             }
-
 
             nokia_lcd_clear();
             for (int i = 0; i < 14; i++)
@@ -344,6 +356,10 @@ int main(void)
             nokia_lcd_set_cursor(70, 6);
             sprintf(msg, "%d", pontos);
             nokia_lcd_write_string(msg, 1);
+            nokia_lcd_set_cursor(0, 0);
+            sprintf(msg, "%d", gravidade);
+            nokia_lcd_write_string(msg, 1);
+
             gameover = aumentaPonto(posicaoCano1, cano1Aleatorio);
             if (gameover)
                 break;
