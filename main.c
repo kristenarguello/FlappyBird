@@ -39,7 +39,7 @@ uint8_t gravidade = 15,
         velocidade = 9,
         start = 0,
         highscore = 0,
-        lastHighscore = 0;
+        newHighscore = 0;
 
 uint8_t glyph[] = {
     0b00100000,
@@ -373,30 +373,27 @@ int main(void)
             nokia_lcd_render();
         }
 
-        while (gameover) //tela de gameover
-        {   
-            if (pontos > highscore) {
-                lastHighscore = highscore;
+        while (gameover) // tela de gameover
+        {
+            if (pontos > highscore)
+            {
                 highscore = pontos;
             }
 
-            start = 0; 
+            start = 0;
             nokia_lcd_clear();
-            nokia_lcd_set_cursor(5, 1);
+            nokia_lcd_set_cursor(6, 1);
             nokia_lcd_custom(2, glyph);
             nokia_lcd_write_string("GAME OVER \002", 1);
             nokia_lcd_set_cursor(15, 13);
             sprintf(msg, "Score: %d", pontos);
             nokia_lcd_write_string(msg, 1);
-            nokia_lcd_set_cursor(6, 35);
-            nokia_lcd_write_string("S to restart", 1);
-            nokia_lcd_set_cursor(6, 39);
-            if (lastHighscore != highscore) 
-                sprintf(msg, "NEW Highscore: %d", highscore);
-            else    
-                sprintf(msg, "Highscore: %d", highscore);
-
+            nokia_lcd_set_cursor(4, 25);
+            sprintf(msg, "Highscore: %d", highscore);
             nokia_lcd_write_string(msg, 1);
+            nokia_lcd_set_cursor(6, 39);
+            nokia_lcd_write_string("S to restart", 1);
+
             nokia_lcd_render();
 
             if (PIND & (1 << PD0)) // clicou no s, reinicia as variaceis
