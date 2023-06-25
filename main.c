@@ -128,6 +128,7 @@ ISR(TIMER2_OVF_vect)
         {
             velocidade--;
             tempo = 0;
+            movimentoCano = 0;
         }
         jaAumentou = 1;
     }
