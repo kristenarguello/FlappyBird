@@ -123,17 +123,16 @@ ISR(TIMER2_OVF_vect)
     movimentoCano++;
 
     // aumento de dificuldade
-    if (pontos % 2 == 0 && pontos != 0 && jaAumentou)
+    if (pontos % 3 == 0 && pontos != 0 && !jaAumentou)
     {
-        if (velocidade > 5)
+        if (velocidade > 3)
         {
             velocidade--;
             tempo = 0;
-            movimentoCano = 0;
-        }
+         }
         jaAumentou = 1;
     }
-    if (pontos % 3 == 0 && pontos != 0)
+    if (pontos % 4 == 0 && pontos != 0)
         jaAumentou = 0;
 }
 
