@@ -38,8 +38,7 @@ uint8_t gravidade = 15,
         jaAumentou = 0,
         velocidade = 9,
         start = 0,
-        highscore = 0,
-        newHighscore = 0;
+        highscore = 0;
 
 uint8_t glyph[] = {
     0b00100000,
@@ -129,7 +128,7 @@ ISR(TIMER2_OVF_vect)
         {
             velocidade--;
             tempo = 0;
-         }
+        }
         jaAumentou = 1;
     }
     if (pontos % 4 == 0 && pontos != 0)
@@ -403,9 +402,16 @@ int main(void)
                 pula5vezes = 0;
                 gameover = 0;
                 pontos = 0;
+
+                cano1Aleatorio = rand() % (7 - 0 + 1) + 0;
+                cano2Aleatorio = rand() % (7 - 0 + 1) + 0;
+                posicaoCano1 = 40;
+                posicaoCano2 = 80;
+
                 movimentoCano = 0;
                 jaPasso = 0;
-                velocidade = 10;
+                jaAumentou = 0;
+                velocidade = 9;
                 start = 1;
 
                 cano1Aleatorio = rand() % (7 - 1 + 1) + 1;
