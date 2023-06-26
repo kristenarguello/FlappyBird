@@ -65,7 +65,7 @@ ISR(TIMER2_OVF_vect)
         if (tempo == velocidade)
         {
             gravidade++;
-            if (gravidade == 40 || gravidade <= 0)
+            if (gravidade >= 38 || gravidade <= 0)
             {
                 gameover = 1;
                 return;
@@ -356,9 +356,9 @@ int main(void)
             nokia_lcd_set_cursor(70, 6);
             sprintf(msg, "%d", pontos);
             nokia_lcd_write_string(msg, 1);
-            // nokia_lcd_set_cursor(0, 0);
-            // sprintf(msg, "%d", gravidade);
-            // nokia_lcd_write_string(msg, 1);
+            nokia_lcd_set_cursor(0, 0);
+            sprintf(msg, "%d", gravidade);
+            nokia_lcd_write_string(msg, 1);
 
             gameover = aumentaPonto(posicaoCano1, cano1Aleatorio);
             if (gameover)
