@@ -294,9 +294,6 @@ int main(void)
 
     nokia_lcd_init();
 
-    cano1Aleatorio = rand() % (7 - 0 + 1) + 0;
-    cano2Aleatorio = rand() % (7 - 0 + 1) + 0;
-
     while (1)
     {
         nokia_lcd_clear();
@@ -306,6 +303,9 @@ int main(void)
         nokia_lcd_set_cursor(12, 25);
         nokia_lcd_write_string("S to start", 1);
         nokia_lcd_render();
+
+        cano1Aleatorio = rand() % (7 - 1 + 1) + 1;
+        cano2Aleatorio = rand() % (7 - 1 + 1) + 1;
 
         if (PIND & (1 << PD0))
         {
@@ -355,9 +355,6 @@ int main(void)
             nokia_lcd_write_string(".", 1);
             nokia_lcd_set_cursor(70, 6);
             sprintf(msg, "%d", pontos);
-            nokia_lcd_write_string(msg, 1);
-            nokia_lcd_set_cursor(0, 0);
-            sprintf(msg, "%d", gravidade);
             nokia_lcd_write_string(msg, 1);
 
             gameover = aumentaPonto(posicaoCano1, cano1Aleatorio);
