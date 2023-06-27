@@ -401,11 +401,6 @@ int main(void)
                 gameover = 0;
                 pontos = 0;
 
-                cano1Aleatorio = rand() % (7 - 0 + 1) + 0;
-                cano2Aleatorio = rand() % (7 - 0 + 1) + 0;
-                posicaoCano1 = 40;
-                posicaoCano2 = 80;
-
                 movimentoCano = 0;
                 jaPasso = 0;
                 jaAumentou = 0;
